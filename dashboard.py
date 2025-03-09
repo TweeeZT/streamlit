@@ -25,42 +25,43 @@ df = load_data()
 st.title("Dashboard Analisis Data Rental Sepeda")
 st.sidebar.header("Filter Data")
 
-years = df["yr_hari"].unique()
-seasons = df["season_hari"].unique()
-selected_year = st.sidebar.selectbox("Pilih Tahun", years)
-selected_season = st.sidebar.selectbox("Pilih Musim", seasons)
 
-df_filtered = df[(df["yr_hari"] == selected_year) & (df["season_hari"] == selected_season)]
+selected_year = st.sidebar.multiselect("Pilih Tahun", df["yr_hari"].unique(), default=df["yr_hari"].unique())
+selected_season = st.sidebar.multiselect("Pilih Musim", df["season_hari"].unique(), default=df["season_hari"].unique())
 
-day_usage = df.groupby("weekday_hari")["cnt_hari"].sum().reset_index()
+df_filtered = df[(df["yr_hari"].isin(selected_year)) & (df["season_hari"].isin(selected_season))]
+
+
+base_color = "Blues"
+
 st.subheader("Total Rental Berdasarkan Hari")
+day_usage = df_filtered.groupby("weekday_hari")["cnt_hari"].sum().reset_index()
 plt.figure(figsize=(8, 4))
-sns.barplot(x=day_usage["weekday_hari"], y=day_usage["cnt_hari"], palette="pastel")
+sns.barplot(x=day_usage["weekday_hari"], y=day_usage["cnt_hari"], palette=base_color)
 plt.xlabel("Hari dalam Seminggu")
 plt.ylabel("Total Rental")
 st.pyplot(plt)
 
 st.subheader("Perbandingan Rental antara Workday dan Weekend")
-workday_vs_weekend = df.groupby("workingday_hari")["cnt_hari"].sum().reset_index()
+workday_vs_weekend = df_filtered.groupby("workingday_hari")["cnt_hari"].sum().reset_index()
 plt.figure(figsize=(6, 4))
-sns.barplot(x=workday_vs_weekend["workingday_hari"], y=workday_vs_weekend["cnt_hari"], palette="coolwarm")
+sns.barplot(x=workday_vs_weekend["workingday_hari"], y=workday_vs_weekend["cnt_hari"], palette=base_color)
 plt.xlabel("Kategori Hari")
 plt.ylabel("Total Rental")
 st.pyplot(plt)
 
 st.subheader("Total Penyewaan Berdasarkan Musim")
-season_usage = df.groupby("season_hari")["cnt_hari"].sum().reset_index()
+season_usage = df_filtered.groupby("season_hari")["cnt_hari"].sum().reset_index()
 plt.figure(figsize=(8, 4))
-sns.barplot(x=season_usage["season_hari"], y=season_usage["cnt_hari"], palette="viridis")
+sns.barplot(x=season_usage["season_hari"], y=season_usage["cnt_hari"], palette=base_color)
 plt.xlabel("Musim")
 plt.ylabel("Total Rental")
 st.pyplot(plt)
 
 st.subheader("Jumlah Rental Berdasarkan Jam")
-hourly_usage = df.groupby("hr")["cnt_jam"].sum().reset_index()
+hourly_usage = df_filtered.groupby("hr")["cnt_jam"].sum().reset_index()
 plt.figure(figsize=(10, 5))
-sns.barplot(x=hourly_usage["hr"], y=hourly_usage["cnt_jam"], color="blue")
+sns.barplot(x=hourly_usage["hr"], y=hourly_usage["cnt_jam"], palette=base_color)
 plt.xlabel("Jam")
 plt.ylabel("Total Rental")
 st.pyplot(plt)
-
